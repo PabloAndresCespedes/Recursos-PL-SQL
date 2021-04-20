@@ -1,0 +1,34 @@
+-- Create table
+create table ESTADOS
+(
+  id          NUMBER not null,
+  descripcion VARCHAR2(50) not null
+)
+tablespace APEX
+  pctfree 10
+  initrans 1
+  maxtrans 255
+  storage
+  (
+    initial 64K
+    minextents 1
+    maxextents unlimited
+  );
+-- Add comments to the table 
+comment on table ESTADOS
+  is 'Tabla Catalogo';
+-- Create/Recreate primary, unique and foreign key constraints 
+alter table ESTADOS
+  add constraint ESTADOS_PK primary key (ID)
+  using index 
+  tablespace APEX
+  pctfree 10
+  initrans 2
+  maxtrans 255;
+alter table ESTADOS
+  add constraint ESTADOS_DESC_UK unique (DESCRIPCION)
+  using index 
+  tablespace APEX
+  pctfree 10
+  initrans 2
+  maxtrans 255;

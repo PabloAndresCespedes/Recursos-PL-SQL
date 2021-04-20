@@ -1,0 +1,2 @@
+USUARIOS
+NICK >> Caracteres: Max 50 Min 5

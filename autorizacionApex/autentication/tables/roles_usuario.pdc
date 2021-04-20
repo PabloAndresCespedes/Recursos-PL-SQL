@@ -1,0 +1,54 @@
+-- Create table
+create table ROLES_USUARIO
+(
+  id         NUMBER not null,
+  usuario_id NUMBER not null,
+  roles_ids  VARCHAR2(4000) not null,
+  fecha      DATE default SYSDATE not null,
+  user_web   VARCHAR2(50) not null
+)
+tablespace APEX
+  pctfree 10
+  initrans 1
+  maxtrans 255
+  storage
+  (
+    initial 64K
+    next 1M
+    minextents 1
+    maxextents unlimited
+  );
+-- Add comments to the columns 
+comment on column ROLES_USUARIO.usuario_id
+  is 'Tabla USUARIOS';
+comment on column ROLES_USUARIO.roles_ids
+  is 'ID''s tabla ROLES, separados por dos puntos ":"';
+-- Create/Recreate primary, unique and foreign key constraints 
+alter table ROLES_USUARIO
+  add constraint ROLES_USUARIO_PK primary key (ID)
+  using index 
+  tablespace APEX
+  pctfree 10
+  initrans 2
+  maxtrans 255
+  storage
+  (
+    initial 64K
+    next 1M
+    minextents 1
+    maxextents unlimited
+  );
+alter table ROLES_USUARIO
+  add constraint ROLES_USUARIO_USU_UK unique (USUARIO_ID)
+  using index 
+  tablespace APEX
+  pctfree 10
+  initrans 2
+  maxtrans 255
+  storage
+  (
+    initial 64K
+    next 1M
+    minextents 1
+    maxextents unlimited
+  );

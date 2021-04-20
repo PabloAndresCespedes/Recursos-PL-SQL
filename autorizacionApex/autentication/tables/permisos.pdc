@@ -1,0 +1,52 @@
+-- Create table
+create table PERMISOS
+(
+  id          NUMBER not null,
+  descripcion VARCHAR2(255) not null,
+  fecha       DATE not null,
+  estado_id   NUMBER not null,
+  user_web    VARCHAR2(50) not null
+)
+tablespace APEX
+  pctfree 10
+  initrans 1
+  maxtrans 255
+  storage
+  (
+    initial 64K
+    next 1M
+    minextents 1
+    maxextents unlimited
+  );
+-- Create/Recreate primary, unique and foreign key constraints 
+alter table PERMISOS
+  add constraint PERMISOS_PK primary key (ID)
+  using index 
+  tablespace APEX
+  pctfree 10
+  initrans 2
+  maxtrans 255
+  storage
+  (
+    initial 64K
+    next 1M
+    minextents 1
+    maxextents unlimited
+  );
+alter table PERMISOS
+  add constraint PERMISOS_DESC_UK unique (DESCRIPCION)
+  using index 
+  tablespace APEX
+  pctfree 10
+  initrans 2
+  maxtrans 255
+  storage
+  (
+    initial 64K
+    next 1M
+    minextents 1
+    maxextents unlimited
+  );
+alter table PERMISOS
+  add constraint PERMISOS_ESTADO_FK foreign key (ESTADO_ID)
+  references ESTADOS (ID);

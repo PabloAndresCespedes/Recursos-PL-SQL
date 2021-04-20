@@ -1,0 +1,64 @@
+-- Create table
+create table USUARIOS
+(
+  id        NUMBER not null,
+  nick      VARCHAR2(50) not null,
+  nombre    VARCHAR2(255) not null,
+  apellido  VARCHAR2(255) not null,
+  estado_id NUMBER not null,
+  pass      VARCHAR2(255) not null,
+  fecha     DATE default SYSDATE not null,
+  user_web  VARCHAR2(50) not null
+)
+tablespace APEX
+  pctfree 10
+  initrans 1
+  maxtrans 255
+  storage
+  (
+    initial 64K
+    next 1M
+    minextents 1
+    maxextents unlimited
+  );
+-- Add comments to the columns 
+comment on column USUARIOS.estado_id
+  is 'Tabla ESTADOS';
+comment on column USUARIOS.fecha
+  is 'Fecha de modificacion';
+-- Create/Recreate primary, unique and foreign key constraints 
+alter table USUARIOS
+  add constraint USUARIOS_PK primary key (ID)
+  using index 
+  tablespace APEX
+  pctfree 10
+  initrans 2
+  maxtrans 255
+  storage
+  (
+    initial 64K
+    next 1M
+    minextents 1
+    maxextents unlimited
+  );
+alter table USUARIOS
+  add constraint USUARIOS_NICK_UK unique (NICK)
+  using index 
+  tablespace APEX
+  pctfree 10
+  initrans 2
+  maxtrans 255
+  storage
+  (
+    initial 64K
+    next 1M
+    minextents 1
+    maxextents unlimited
+  );
+alter table USUARIOS
+  add constraint USUARIOS_EST_FK foreign key (ESTADO_ID)
+  references ESTADOS (ID);
+-- Create/Recreate check constraints 
+alter table USUARIOS
+  add constraint USUARIO_NICK_LENGTH
+  check (LENGTH(NICK) >= 5);

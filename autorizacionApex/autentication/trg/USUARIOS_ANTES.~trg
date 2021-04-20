@@ -1,0 +1,14 @@
+create or replace trigger USUARIOS_ANTES
+  before insert or update
+  on USUARIOS 
+  for each row
+-- asigna pk y fecha
+begin
+  if :new.id is null and inserting then
+    :new.id := USUARIOS_SEQ.Nextval;
+  end if;
+  
+  :new.fecha := sysdate;
+  
+end USUARIOS_ANTES;
+/

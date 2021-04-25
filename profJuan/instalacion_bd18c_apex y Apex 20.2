@@ -1,0 +1,621 @@
+Instalacion de Oracle 18c en centos 7
+======================================
+
+actualizar el sistema operativo 
+-------------------------------
+# yum update 
+
+despues de terminar la actulizacion descargamos los archivos de instalacion del bd18c
+--------------------------------------------------------------------------------------
+oracle-database-preinstall-18c-1.0-1.el7.x86_64.rpm
+oracle-database-xe-18c-1.0-1.x86_64.rpm
+
+# yum -y localinstall oracle-database-preinstall-18c-1.0-1.el7.x86_64.rpm
+
+
+una vez finalizado ejecutar el instalador de la bd18c
+------------------------------------------------------
+# yum -y localinstall oracle-database-xe-18c-1.0-1.x86_64.rpm
+
+
+Crear y configurar base de datos importante !!!!!!!
+---------------------------------------------------
+
+# /etc/init.d/oracle-xe-18c configure
+
+
+Configurar Base de Datos, ver el contenido de tnsnames.ora
+-----------------------------------------------------------
+
+# vi /opt/oracle/product/18c/dbhomeXE/network/admin/tnsnames.ora
+
+
+Realizar una copia de respaldo y editar el tnsnames.ora
+-------------------------------------------------------
+cp /opt/oracle/product/18c/dbhomeXE/network/admin/tnsnames.ora /opt/oracle/product/18c/dbhomeXE/network/admin/tnsnames.bak 
+
+Editamos el tnsnames.ora y agregamos el siguiente codigo
+
+XEPDB1 =
+  (DESCRIPTION =
+    (ADDRESS = (PROTOCOL = TCP)(HOST = ipserver)(PORT = 1521))
+    (CONNECT_DATA =
+      (SERVER = DEDICATED)
+      (SERVICE_NAME = XEPDB1)
+    )
+  ) 
+
+
+
+Tenemos que setear las variables de entorno y agregar el siguiente contenido
+----------------------------------------------------------------------------
+# vi ~/.bash_profile
+
+export ORACLE_BASE=/opt/oracle/ 
+export LD_LIBRARY_PATH=/opt/oracle/product/18c/dbhomeXE/lib 
+export ORACLE_HOME=/opt/oracle/product/18c/dbhomeXE 
+export PATH=$ORACLE_BASE/product/18c/dbhomeXE/bin:$PATH 
+export PATH=/usr/bin:$PATH 
+export ORACLE_SID=XE 
+
+
+Ejecutar lo siguiente para que tome las variables 
+------------------------------------------------
+
+# source ~/.bash_profile
+
+
+Conectarnos  con el sqlplus a la base de datos 
+-----------------------------------------------
+# sqlplus /nolog 
+passw
+
+
+
+SQL*Plus: Release 18.0.0.0.0 - Production on Tue Jan 22 22:41:56 2019
+ Version 18.4.0.0.0
+ Copyright (c) 1982, 2018, Oracle.  All rights reserved.
+ Enter user-name: sys as sysdba
+ Enter password: 
+
+ Connected to:
+ Oracle Database 18c Express Edition Release 18.0.0.0.0 - Production
+ Version 18.4.0.0.0
+
+ SQL>
+
+
+Tras la Creacion de la bd hay que relizar esta modificacion para iniciar automatico de la misma
+------------------------------------------------------------------------------------------------
+
+# vi /etc/oratab 
+
+XE:/opt/oracle/product/18c/dbhomeXE:Y  ( cambiar a Y)
+
+# chkconfig --add /etc/init.d/oracle-xe-18c
+
+
+Reiniciar Bd
+------------
+# systemctl daemon-reload
+# systemctl enable oracle-xe-18c
+
+
+# sqlplus /nolog 
+
+SQL> conn sys as sysdba
+contraseña --
+
+SQL> shutdown immediate;
+SQL> startup
+SQL> ALTER PLUGGABLE DATABASE ALL OPEN;
+
+
+Configurar el ORacle Enterprise Manager
+---------------------------------------
+
+SQL> EXEC DBMS_XDB.SETLISTENERLOCALACCESS(FALSE);
+SQL> exec dbms_xdb_config.SetGlobalPortEnabled(TRUE);
+
+
+ya deberiamos poder acceder el EM
+
+
+https://192.168.100.99:5500/em
+
+
+Configuaraciones posteriores a la instalacion de bd
+---------------------------------------------------
+
+SQL> show pdbs;
+
+SQL> alter session set Container=XEPDB1;
+
+
+
+Instalacion de Apex 20.2
+=========================
+
+Para empezar la instalacion debemos posicionarnos en la ruta donde descargamos y descomprimimos el archivo apexxx.zip
+
+# tnsping XE
+
+TNS Ping Utility for Linux: Version 18.0.0.0.0 - Production on 05-DEC-2019 18:57:51
+
+Copyright (c) 1997, 2018, Oracle. All rights reserved.
+
+Used parameter files:
+/opt/oracle/product/18c/dbhomeXE/network/admin/sqlnet.ora
+
+
+Used TNSNAMES adapter to resolve the alias
+Attempting to contact (DESCRIPTION = (ADDRESS = (PROTOCOL = TCP)(HOST = myhost.mydomain.com)(PORT = 1521)) (CONNECT_DATA = (SERVER = DEDICATED) (SERVICE_NAME = XE)))
+OK (20 msec)
+
+# sqlplus /nolog
+
+SQL*Plus: Release 18.0.0.0.0 - Production on Thu Dec 5 18:58:09 2019
+Version 18.4.0.0.0
+
+Copyright (c) 1982, 2018, Oracle. All rights reserved.
+
+# sqlplus /nolog
+
+SQL*Plus: Release 18.0.0.0.0 - Production on Thu Dec 5 18:47:52 2019
+Version 18.4.0.0.0
+
+Copyright (c) 1982, 2018, Oracle. All rights reserved.
+
+SQL> conn / as sysdba
+Connected.
+SQL> select name from v$containers;
+
+NAME
+--------------------------------------------------------------------------------
+CDB$ROOT
+PDB$SEED
+XEPDB1
+
+SQL> alter session set container=XEPDB1;
+
+Session altered.
+
+SQL> alter profile DEFAULT limit password_life_time UNLIMITED;
+
+Profile altered.
+
+si sseguimos conectados no hace falta volver a conectarse si no directamente ejecutar el comando sql
+-----------------------------------------------------------------------------------------------------
+
+SQL> conn / as sysdba
+Connected.
+SQL> ALTER SESSION SET CONTAINER=XEPDB1;
+
+Session altered.
+
+SQL> @apexins.sql SYSAUX SYSAUX TEMP /i/
+
+
+Este paso tomara unos 10 minutos mas menos.
+
+Oracle Application Express is installed in the APEX_20 schema.
+
+
+timing for: Phase 3 (Switch)
+Elapsed: 00:00:13.03
+timing for: Complete Installation
+Elapsed: 00:10:33.61
+
+PL/SQL procedure successfully completed.
+
+
+APEX debería haber creado varias cuentas de base de datos durante la instalación. Para verificar que las cuentas se hayan instalado en el PDB correcto,
+ejecute el siguiente comando:
+
+SQL> alter session set container=XEPDB1;
+
+Session altered.
+
+SQL> select username from dba_users order by username asc;
+
+USERNAME
+--------------------------------------------------------------------------------
+ANONYMOUS
+APEX_190200
+APEX_INSTANCE_ADMIN_USER
+APEX_PUBLIC_USER
+
+
+¡Esto se ve bien! Ahora hay una serie de pasos adicionales que debemos ejecutar.
+
+Primero necesitamos crear una nueva cuenta de administración de instancias APEX.
+Este es el superusuario que se necesita para configurar la instancia APEX y crear nuevos espacios de trabajo, usuarios, etc.
+Para crear una nueva cuenta de administración de instancias APEX, debe ejecutar el script “ apxchpwd.sql ” que se incluye en el archivo 
+apex_20.2.zip que descargó y descomprimió anteriormente.
+
+
+# sqlplus /nolog
+
+SQL*Plus: Release 18.0.0.0.0 - Production on Fri Dec 6 18:15:21 2019
+Version 18.4.0.0.0
+
+Copyright (c) 1982, 2018, Oracle. All rights reserved.
+
+SQL> conn / as sysdba
+Connected.
+SQL> alter session set container=XEPDB1;
+
+Session altered.
+
+SQL> @apxchpwd.sql
+...set_appun.sql
+================================================================================
+This script can be used to change the password of an Application Express
+instance administrator. If the user does not yet exist, a user record will be
+created.
+================================================================================
+Enter the administrator's username [ADMIN] ADMIN        -- en los todos enter para que quede por default y solo donde pide passwd.(Msgre2021) , algo similar  
+User "ADMIN" does not yet exist and will be created.
+Enter ADMIN's email [ADMIN] bla@bla.com
+Enter ADMIN's password []
+Created instance administrator ADMIN.
+
+Aquí conservamos el nombre predeterminado de " ADMIN " para la cuenta de administración de instancias APEX. 
+Recuerde la contraseña o guárdela en un lugar seguro, la necesitará más tarde para iniciar sesión por primera vez.
+
+Como siguiente paso, necesitamos desbloquear y cambiar la contraseña de la cuenta de la base de datos APEX_PUBLIC_USER .
+Esta es una de las cuentas cruciales que se utiliza para conectar el oyente web a la base de datos.
+
+
+# sqlplus /nolog
+
+SQL*Plus: Release 18.0.0.0.0 - Production on Fri Dec 6 18:30:28 2019
+Version 18.4.0.0.0
+
+Copyright (c) 1982, 2018, Oracle. All rights reserved.
+
+SQL> conn / as sysdba
+Connected.
+SQL> alter session set container=XEPDB1;
+
+Session altered.
+
+SQL> alter user APEX_PUBLIC_USER account unlock;
+
+User altered.
+
+SQL> alter user APEX_PUBLIC_USER identified by "<password>"; -- este suele ponerse misma contraseña que base de datos tambien
+
+Verificar el puerto http con la sentencia select:
+    
+SQL> select dbms_xdb.gethttpport from dual;
+
+
+Cambiar el puerto http con la ejecución del procedimiento siguiente:
+     
+SQL> exec dbms_xdb.sethttpport(0);
+
+
+
+Crear el perfil que se asignará al usuario  APEX_PUBLIC_USER:
+-------------------------------------------------------------
+
+SQL> create profile APEX_USER_PROFILE limit PASSWORD_LIFE_TIME UNLIMITED;
+
+SQL> alter user APEX_PUBLIC_USER profile APEX_USER_PROFILE;
+
+
+
+El siguiente paso es configurar los servicios RESTful en su nueva instalación de APEX. 
+Esto se hace ejecutando el script SQL “ apex_rest_config.sql ” que se puede encontrar en la misma carpeta que el script que acabamos de usar para crear la cuenta de administración de instancias APEX.
+
+# sqlplus /nolog
+
+SQL*Plus: Release 18.0.0.0.0 - Production on Fri Dec 6 18:43:36 2019
+Version 18.4.0.0.0
+
+Copyright (c) 1982, 2018, Oracle. All rights reserved.
+
+SQL> conn / as sysdba
+Connected.
+SQL> alter session set container=XEPDB1;
+
+Session altered.
+
+SQL> @apex_rest_config.sql
+
+PL/SQL procedure successfully completed.
+PL/SQL procedure successfully completed.
+
+Enter a password for the APEX_LISTENER user []
+Enter a password for the APEX_REST_PUBLIC_USER user []
+
+............................
+
+Verá algunos resultados y, con suerte, no habrá errores. Se han creado dos nuevas cuentas de base de datos: APEX_LISTENER y APEX_REST_PUBLIC_USER .
+También guarde las contraseñas de estas cuentas en un lugar seguro.
+
+
+Resumamos lo que hemos hecho hasta ahora:
+
+instale APEX 19.2 ejecutando el script apexins.sql en la base de datos conectable XEPDB1
+cree el usuario de administración de instancias APEX ejecutando el script apxchpwd.sql
+desbloquear la cuenta APEX_PUBLIC_USER y establecer la contraseña
+configure los servicios RESTful ejecutando el script apex_rest_config.sql
+
+Ahora configuraremos el ORDS
+----------------------------
+
+# cd /home/oracle/ords20.2
+# unzip ords-19.2.0.199.1647.zip
+# mkdir conf
+# mkdir images
+
+Ahora vamos a comenzar con la instalación de ORDS 19.2 en nuestra base de datos conectable XEPDB1. La guía de instalación completa para ORDS 20.2 se puede encontrar aquí .
+Tenga en cuenta que para realizar la instalación necesita acceso a un ejecutable de Java . No voy a explicar cómo instalar java JDK, pero tengo acceso a OpenJDK 1.8 en mi servidor Linux:
+
+# java -version
+openjdk version "1.8.0_232"
+OpenJDK Runtime Environment (build 1.8.0_232-b09)
+OpenJDK 64-Bit Server VM (build 25.232-b09, mixed mode)
+
+Comencemos la instalación de ORDS 20.2 ejecutando el comando “ java -jar ords.war install advanced ” dentro de la carpeta donde extrajimos el archivo zip ORDS:
+
+# java -jar ords.war install advanced 
+
+Esta instancia de Oracle REST Data Services aún no se ha configurado. 
+Complete las siguientes instrucciones 
+
+Ingrese la ubicación para almacenar los datos de configuración: / home / oracle / ords192 / conf 
+Ingrese el nombre del servidor de la base de datos [localhost]: localhost o ip
+Ingrese el puerto de escucha de la base de datos [1521]: 1521 
+Ingrese 1 para especificar el servicio de la base de datos nombre, o 2 para especificar el SID de la base de datos [1]: 1 
+Ingrese el nombre del servicio de la base de datos: xepdb1 
+Ingrese 1 si desea verificar / instalar el esquema de Oracle REST Data Services o 2 para omitir este paso [1]: 1 
+Ingrese la contraseña de la base de datos para ORDS_PUBLIC_USER :
+Confirmar contraseña: 
+Requiere iniciar sesión con privilegios de administrador para verificar el esquema de Oracle REST Data Services. 
+
+Ingrese el nombre de usuario del administrador: SYS AS SYSDBA 
+Ingrese la contraseña de la base de datos para SYS AS SYSDBA: 
+Confirme la contraseña: 
+
+Recuperando información. 
+Ingrese el espacio de tabla predeterminado para ORDS_METADATA [SYSAUX]: 
+Ingrese el espacio de tabla temporal para ORDS_METADATA [TEMP]: 
+Ingrese el espacio de tabla predeterminado para ORDS_PUBLIC_USER [USERS]: 
+Ingrese el espacio de tabla temporal para ORDS_PUBLIC_USER [TEMP]: 
+Ingrese 1 si desea utilizar PL / SQL Gateway o 2 para omitir este paso. 
+Si usa Oracle Application Express o migra desde mod_plsql, debe ingresar 1 [1]: 1
+Ingrese el nombre de usuario de la base de datos de PL / SQL Gateway [APEX_PUBLIC_USER]: 
+Ingrese la contraseña de la base de datos para APEX_PUBLIC_USER: 
+Confirme la contraseña: 
+Ingrese 1 para especificar las contraseñas para los usuarios de la base de datos de Application Express RESTful Services (APEX_LISTENER, APEX_REST_PUBLIC_USER) o 2 para omitir este paso [1]: 1 
+Ingrese la contraseña de la base de datos para APEX_LISTENER: 
+Confirme la contraseña: 
+Ingrese la contraseña de la base de datos para APEX_REST_PUBLIC_USER: 
+Confirme la contraseña: 
+09 de diciembre de 2019 9:12:39 PM 
+INFO: grupos recargados: [] 
+Instalación de Oracle REST Data Services versión 19.2.0.r1991647 
+. .. Archivo de registro escrito en /home/oracle/ords_install_core_2019-12-09_211239_00833.log 
+... Prerrequisitos de base de datos verificados
+... Creó el usuario proxy de Oracle REST Data Services 
+... Creó el esquema de Oracle REST Data Services 
+... Otorgó privilegios a Oracle REST Data Services 
+... Creó objetos de base de datos de Oracle REST Data Services 
+... Archivo de registro escrito en / home / oracle /ords_install_datamodel_2019-12-09_211305_00118.log 
+... Archivo de registro escrito en /home/oracle/ords_install_apex_2019-12-09_211309_00307.log 
+Instalación completa para Oracle REST Data Services versión 19.2.0.r1991647. Tiempo transcurrido: 00: 00: 32.815 
+
+Ingrese 1 si desea comenzar en modo autónomo o 2 para salir [1]: 2
+
+Copiar las imagenes de la carpeta apex20.2 a la carpeta de imagenes creada en ords20.2
+
+#  cp -R /home/oracle/apex192/apex/images/* /home/oracle/ords20.2/images/
+
+
+# cd /home/oracle/ords20.2/
+
+java -jar ords.war standalone
+
+Enter the APEX static resources location:/home/oracle/ords20.2/images (ruta donde estan las imagenes que copiamos anteriormente)
+Enter 1 if using HTTP or 2 if using HTTPS [1]:2
+Enter the HTTPS port [8443]:8443
+Enter the SSL hostname:myserver.mydomain.com
+Enter 1 to use the self-signed certificate or 2 if you will provide the SSL certificate [1]:1
+2019-12-10 18:00:54.963:INFO::main: Logging initialized @87609ms to org.eclipse.jetty.util.log.StdErrLog
+Dec 10, 2019 6:00:56 PM
+INFO: HTTPS listening on port: 8443
+Dec 10, 2019 6:00:56 PM
+INFO: Disabling document root because the specified folder does not exist: /home/oracle/ords192/conf/ords/standalone/doc_root
+2019-12-10 18:00:57.940:INFO:oejs.Server:main: jetty-9.4.z-SNAPSHOT; built: 2019-05-02T09:46:34.874Z; git: 14f32d50076f2b706f41a33066eb364d8492e199; jvm 1.8.0_232-b09
+2019-12-10 18:00:57.962:INFO:oejs.session:main: DefaultSessionIdManager workerName=node0
+2019-12-10 18:00:57.963:INFO:oejs.session:main: No SessionScavenger set, using defaults
+2019-12-10 18:00:57.964:INFO:oejs.session:main: node0 Scavenging every 600000ms
+Dec 10, 2019 6:00:59 PM
+INFO: Configuration properties for: |apex||
+db.hostname=localhost
+db.password=******
+db.port=1521
+db.servicename=xepdb1
+db.username=APEX_PUBLIC_USER
+resource.templates.enabled=true
+security.requestValidationFunction=wwv_flow_epg_include_modules.authorize
+security.validationFunctionType=plsql
+Dec 10, 2019 6:01:01 PM
+WARNING: *** jdbc.MaxLimit in configuration |apex|pu| is using a value of 10, this setting may not be sized adequately for a production environment ***
+Dec 10, 2019 6:01:01 PM
+WARNING: *** jdbc.InitialLimit in configuration |apex|pu| is using a value of 3, this setting may not be sized adequately for a production environment ***
+Dec 10, 2019 6:01:02 PM
+INFO: Configuration properties for: |apex|al|
+db.hostname=localhost
+db.password=******
+db.port=1521
+db.servicename=xepdb1
+db.username=APEX_LISTENER
+resource.templates.enabled=true
+security.requestValidationFunction=wwv_flow_epg_include_modules.authorize
+security.validationFunctionType=plsql
+
+Dec 10, 2019 6:01:02 PM
+WARNING: *** jdbc.MaxLimit in configuration |apex|al| is using a value of 10, this setting may not be sized adequately for a production environment ***
+Dec 10, 2019 6:01:02 PM
+WARNING: *** jdbc.InitialLimit in configuration |apex|al| is using a value of 3, this setting may not be sized adequately for a production environment ***
+Dec 10, 2019 6:01:02 PM
+INFO: Configuration properties for: |apex|rt|
+db.hostname=localhost
+db.password=******
+db.port=1521
+db.servicename=xepdb1
+db.username=APEX_REST_PUBLIC_USER
+resource.templates.enabled=true
+security.requestValidationFunction=wwv_flow_epg_include_modules.authorize
+security.validationFunctionType=plsql
+
+Dec 10, 2019 6:01:02 PM
+WARNING: *** jdbc.MaxLimit in configuration |apex|rt| is using a value of 10, this setting may not be sized adequately for a production environment ***
+Dec 10, 2019 6:01:02 PM
+WARNING: *** jdbc.InitialLimit in configuration |apex|rt| is using a value of 3, this setting may not be sized adequately for a production environment ***
+Dec 10, 2019 6:01:03 PM
+INFO: Oracle REST Data Services initialized
+Oracle REST Data Services version : 19.2.0.r1991647
+Oracle REST Data Services server info: jetty/9.4.z-SNAPSHOT
+
+2019-12-10 18:01:04.641:INFO:oejsh.ContextHandler:main: Started o.e.j.s.ServletContextHandler@25bbe1b6{/ords,null,AVAILABLE,@Secured}
+2019-12-10 18:01:04.645:INFO:oejsh.ContextHandler:main: Started o.e.j.s.h.ContextHandler@520a3426{/i,null,AVAILABLE,@Secured}
+2019-12-10 18:01:04.715:INFO:oejus.SslContextFactory:main: x509=X509@76508ed1(selfsigned,h=[myserver.mydomain.com],w=[]) for Server@41e36e46[provider=null,keyStore=oracle.dbtools.standalone.InMemoryResource@15c43bd9,trustStore=oracle.dbtools.standalone.InMemoryResource@15c43bd9]
+2019-12-10 18:01:04.830:INFO:oejs.AbstractConnector:main: Started Secured@291ae{SSL,[ssl, http/1.1]}{0.0.0.0:8443}
+2019-12-10 18:01:04.831:INFO:oejs.Server:main: Started @97480ms 
+ 
+ 
+Para mi instalación, elegí usar HTTPS (SSL seguro) en el puerto 8443 con un certificado autofirmado para mi host myserver.mydomain.com .
+Verá algunas advertencias con respecto a los límites de JDBC que necesitan alguna configuración, pero puede ignorar esto por ahora.
+Lo bueno es la última línea: Started @ 97480ms , lo que significa que el servidor se inició correctamente. 
+ 
+ 
+Antes de continuar, hay algunos pasos de configuración adicionales que se pueden realizar.
+
+Presione CTRL-C para detener el proceso independiente de ORDS en ejecución.
+
+Ahora use un editor de texto (por ejemplo vi ) para abrir el archivo de configuración ORDS “ defaults.xml ” en la carpeta / home / oracle / ords192 / conf / ords.
+
+Agregue las siguientes dos líneas. Esto aumentará los límites del grupo de conexiones JDBC:
+
+<entry key = "jdbc.InitialLimit"> 5 </entry> 
+<entry key = "jdbc.MaxLimit"> 20 </entry> 
+
+Lo siguiente que podemos hacer, según lo recomendado por la documentación, es aumentar el límite de solicitudes HTTP POST.
+Inicialmente, se establece en 10 MB, lo vamos a duplicar a 20 MB (= 20971520 bytes). Para hacer esto, debe iniciar ORDS con un parámetro adicional:
+
+
+
+# java -Dorg.eclipse.jetty.server.Request.maxFormContentSize=20971520 -jar ords.war standalone
+
+
+Para que sea más fácil iniciar ORDS, creé un script de shell simple start_ords.sh con el siguiente contenido:
+
+
+#!/bin/bash
+
+cd /home/oracle/ords192
+nohup java -Dorg.eclipse.jetty.server.Request.maxFormContentSize=20971520 -jar ords.war standalone &
+
+
+
+# ./start_ords.sh
+
+
+Lo último que debemos hacer es habilitar los servicios de red para la cuenta de la base de datos APEX_190200.
+Esto es necesario para permitir la impresión de PDF, para el envío de correo electrónico y la comunicación a los servicios web.
+
+Ejecute el siguiente fragmento de código PL / SQL conectado como usuario SYSTEM o SYS AS SYSDBA a la base de datos XEPDB1:
+
+BEGIN
+DBMS_NETWORK_ACL_ADMIN.APPEND_HOST_ACE(
+       host => '*',
+       ace => xs$ace_type(privilege_list => xs$name_list('connect'),
+       principal_name => 'APEX_190200',
+       principal_type => xs_acl.ptype_db));
+       COMMIT;
+END;
+/
+
+
+
+Hemos terminado ..
+
+
+
+
+
+
+
+Desinstalar Bd
+--------------
+
+# yum remove oracle-database-xe-18c-1.0-1.x86_64
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

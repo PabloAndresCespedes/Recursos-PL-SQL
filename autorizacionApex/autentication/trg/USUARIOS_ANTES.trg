@@ -11,7 +11,7 @@ begin
   :new.fecha := sysdate;
   
   -- si no tiene password asignado crea a partir del nick de usuario nuevo
-  if :new.pass is null then
+  if :new.pass is null and inserting then
     :new.pass := encripta_password(p_user_name => upper(:new.nick), p_password => lower(:new.nick));
   end if;
   

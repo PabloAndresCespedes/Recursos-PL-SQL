@@ -10,8 +10,8 @@ begin
         :new.id_asistencia := asistencia_SEQ.nextval;
     end if;
      
-    select id_funcionario
-      into v_funcionario
+    select DEPTNO,id_funcionario
+      into v_dpto,v_funcionario
     from funcionario
     where upper(usuario)= nvl(sys_context('APEX$SESSION','APP_USER'),user); 
    
@@ -29,12 +29,10 @@ begin
         begin
           select fh.fecha_inicio,
                  fh.fecha_fin,
-                 fh.id,
-                 fh.depno
+                 fh.id
           into   :new.func_hora_inicio,
                  :new.func_hora_fin,
-                 :new.id_func_emp,
-                 :new.deptno
+                 :new.id_func_emp
           from funcionarios_empresa fh
           where ((sysdate+15/1440) between fh.fecha_inicio and fh.fecha_fin)
           and  ':'||fh.funcionario_ids||':' like '%'||v_funcionario||'%';

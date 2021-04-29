@@ -78,7 +78,7 @@ begin
 
   -- funcionarios con turnos en estos horarios?
   begin
-    select fe.funcionario_ids
+    select listagg(fe.funcionario_ids, ':') within group (order by 2) x
     into lv_func_turnos_usados
     from funcionarios_empresa fe
     where ( (lv_fecha_inicio between fe.fecha_inicio and fe.fecha_fin) or (lv_fecha_fin between fe.fecha_inicio and fe.fecha_fin) )

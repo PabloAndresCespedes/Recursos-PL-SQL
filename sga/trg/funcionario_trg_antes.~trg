@@ -1,0 +1,10 @@
+create or replace trigger funcionario_trg_antes
+  before insert or update
+  on FUNCIONARIO 
+  for each row
+-- 29-Apr-21 9:02:17 AM @PabloACespedes
+-- encripta la password
+begin
+  :new.pw := encripta_password(p_user_name => :new.usuario, p_password => :new.pw);
+end funcionario_trg_antes;
+/

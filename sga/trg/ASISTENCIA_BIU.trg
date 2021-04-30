@@ -1,12 +1,12 @@
 CREATE OR REPLACE TRIGGER "ASISTENCIA_BIU"
-    before insert or update 
+    before insert or update or delete
     on ASISTENCIA
     for each row
 declare 
 v_dpto          number;
 v_funcionario   number;
 begin
-    if  :new.id_asistencia is null then
+    if inserting and :new.id_asistencia is null then
         :new.id_asistencia := asistencia_SEQ.nextval;
     end if;
      
@@ -48,6 +48,13 @@ begin
         :new.fecha_modificado := systimestamp;
         :new.modificado_por   := nvl(sys_context('APEX$SESSION','APP_USER'),user);
         :new.usuario          := nvl(sys_context('APEX$SESSION','APP_USER'),user);
+        
+    elsif deleting then
+        update novedad n
+        set    n.modif_por = nvl(sys_context('APEX$SESSION','APP_USER'),user),
+               n.asistencia_id = null,
+               n.fecha_ult_modif = systimestamp               
+        where n.asistencia_id = :old.id;
     end if;
     
 end asistencia_biu;

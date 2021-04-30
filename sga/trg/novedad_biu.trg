@@ -32,6 +32,7 @@ begin
         :new.creado_por := nvl(sys_context('APEX$SESSION','APP_USER'),user);
         :new.usuario    := nvl(sys_context('APEX$SESSION','APP_USER'),user);
         :new.DEPTNO     := v_dpto;
+        :new.asistencia_id := GET_ASISTENCIA_USER(p_user => nvl(sys_context('APEX$SESSION','APP_USER'),user));
         
     end if;
     :new.fecha_ult_modif := systimestamp;

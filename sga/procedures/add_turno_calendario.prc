@@ -76,8 +76,8 @@ begin
   end;
 
   -- funcionarios con turnos en estos horarios?
-  if funcionario_valid_add_calendar(p_f_inicio => lv_fecha_inicio,
-                                    p_f_fin    => lv_fecha_fin,
+  if funcionario_valid_add_calendar(p_f_inicio => (lv_fecha_inicio+1/1440),
+                                    p_f_fin    => (lv_fecha_fin-1/1440),
                                     p_func_ids => p_func_id)
   then
     raise_application_Error(-20000, 'Funcionario ya se encuentra asignado en este rango de horario. Tal vez en otra empresa');

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.16.0.final using JasperReports Library version 6.16.0-48579d909b7943b64690c65c71e07e0b80981928  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="sub_actas" pageWidth="595" pageHeight="842" columnWidth="595" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="9403c72b-fe77-4e2d-a58f-e0f90f2a7745">
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="SGV"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w1" value="329"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w2" value="663"/>
+	<parameter name="id_funcionario" class="java.lang.String"/>
+	<parameter name="id_funcionario_emp" class="java.lang.String"/>
+	<parameter name="turno" class="java.lang.String"/>
+	<queryString language="SQL">
+		<![CDATA[select case when n.descripcion is null then 'Sin Novedades' else
+to_char(n.fecha, 'dd/mm/yyyy hh24:mi') ||' - '||n.descripcion end descripcion
+from novedad n
+inner join asistencia a on (a.id = n.asistencia_id)
+inner join funcionarios_empresa fe on (fe.id = a.id_func_emp)
+where n.id_funcionario= $P{id_funcionario}
+and   fe.id = $P{id_funcionario_emp}
+and    fe.turno_id = $P{turno}
+order by n.fecha asc]]>
+	</queryString>
+	<field name="DESCRIPCION" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="DESCRIPCION"/>
+		<property name="com.jaspersoft.studio.field.label" value="DESCRIPCION"/>
+	</field>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<detail>
+		<band height="14" splitType="Stretch">
+			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
+				<reportElement x="0" y="0" width="595" height="14" uuid="56e03c5c-9e2c-403b-b895-591c32be7755">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Justified">
+					<font size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{DESCRIPCION}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

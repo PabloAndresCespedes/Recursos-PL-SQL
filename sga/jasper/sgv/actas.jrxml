@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.16.0.final using JasperReports Library version 6.16.0-48579d909b7943b64690c65c71e07e0b80981928  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="actas" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="1f61064d-476f-492c-a199-805a70caad99">
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="SGV"/>
+	<property name="ireport.jasperserver.url" value="http://192.168.20.14:8080/jasperserver/"/>
+	<property name="ireport.jasperserver.user" value="jasperadmin"/>
+	<property name="ireport.jasperserver.report.resource" value="/reports/actas_files/main_jrxml"/>
+	<property name="ireport.jasperserver.reportUnit" value="/reports/actas"/>
+	<parameter name="fecha_inicio" class="java.lang.String"/>
+	<parameter name="turno" class="java.lang.String"/>
+	<parameter name="funcionario" class="java.lang.String"/>
+	<parameter name="empresa" class="java.lang.String"/>
+	<queryString language="SQL">
+		<![CDATA[select fe.id,
+       initcap(m.nombre) ciudad,
+       initcap(e.nombre) dep_ciudad,
+       initcap(p.nombre) pais,
+       initcap(get_dia_letra(p_numero => to_char(fe.fecha_inicio, 'dd'))) dia_letra,
+       get_mes_letra(p_mes => to_char(fe.fecha_inicio, 'mm')) mes_letra,
+       to_char(fe.fecha_inicio, 'yyyy') anio,
+       to_char(fe.fecha_inicio, 'hh24:mi') hora_inicio,
+       to_char(fe.fecha_fin, 'hh24:mi') hora_fin,
+       initcap(get_dia_letra(p_numero => to_char(fe.fecha_fin, 'dd'))) dia_fin,
+       get_mes_letra(p_mes => to_char(fe.fecha_fin, 'mm')) mes_fin,
+       to_char(fe.fecha_fin, 'yyyy') anio_fin,
+       GET_DATA_FUNCIONARIO(p_id => $P{funcionario}, p_data => 'NAME') func_name,
+       GET_DATA_FUNCIONARIO(p_id => $P{funcionario}, p_data => 'CI') func_ci,
+       d.dname puesto,
+       nvl((
+         select listagg(GET_DATA_FUNCIONARIO(p_id => fas.id_funcionario, p_data => 'NAME') || ' C.I. Nro: ' || GET_DATA_FUNCIONARIO(p_id => fas.id_funcionario, p_data => 'CI'), ' y ') within group (order by 1) dat_func
+         from table(apex_string.split_numbers(p_str => GET_FUNC_TURNO_ANTERIOR(p_fecha_inicio => to_char(fe.fecha_inicio, 'dd/mm/yyyy hh24:mi'), p_depno => fe.depno), p_sep => ':')) func_anter
+         inner join funcionario fas on (fas.id_funcionario = func_anter.column_value)
+       ), 'no') func_ant_name,
+       nvl((
+         select listagg(GET_DATA_FUNCIONARIO(p_id => fas.id_funcionario, p_data => 'NAME') || ' C.I. Nro: ' || GET_DATA_FUNCIONARIO(p_id => fas.id_funcionario, p_data => 'CI'), ' y ') within group (order by 1) dat_func
+         from table(apex_string.split_numbers(p_str => GET_FUNC_TURNO_POST(p_fecha_fin => to_char(fe.fecha_fin, 'dd/mm/yyyy hh24:mi:ss'), p_dept => fe.depno), p_sep => ':')) func_anter
+         inner join funcionario fas on (fas.id_funcionario = func_anter.column_value)
+       ), 'no') func_post_name
+from funcionarios_empresa fe
+inner join dept d on (d.deptno = fe.depno)
+inner join municipio m on (m.id = d.municipio_id)
+inner join estado e on (e.id = m.estado_id)
+inner join pais p on (p.id = e.pais_id)
+inner join categorias_empresa ce on (ce.id = fe.categoria_id)
+inner join turnos t on (t.id = fe.turno_id)
+where trunc(fe.fecha_inicio) = to_date($P{fecha_inicio}, 'dd/mm/yyyy')
+and   fe.turno_id = $P{turno}
+and  ':'||fe.funcionario_ids||':' like '%'||$P{funcionario}||'%'
+and  fe.depno = $P{empresa}]]>
+	</queryString>
+	<field name="ID" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.name" value="ID"/>
+		<property name="com.jaspersoft.studio.field.label" value="ID"/>
+	</field>
+	<field name="CIUDAD" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="CIUDAD"/>
+		<property name="com.jaspersoft.studio.field.label" value="CIUDAD"/>
+	</field>
+	<field name="DEP_CIUDAD" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="DEP_CIUDAD"/>
+		<property name="com.jaspersoft.studio.field.label" value="DEP_CIUDAD"/>
+	</field>
+	<field name="PAIS" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="PAIS"/>
+		<property name="com.jaspersoft.studio.field.label" value="PAIS"/>
+	</field>
+	<field name="DIA_LETRA" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="DIA_LETRA"/>
+		<property name="com.jaspersoft.studio.field.label" value="DIA_LETRA"/>
+	</field>
+	<field name="MES_LETRA" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="MES_LETRA"/>
+		<property name="com.jaspersoft.studio.field.label" value="MES_LETRA"/>
+	</field>
+	<field name="ANIO" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="ANIO"/>
+		<property name="com.jaspersoft.studio.field.label" value="ANIO"/>
+	</field>
+	<field name="HORA_INICIO" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="HORA_INICIO"/>
+		<property name="com.jaspersoft.studio.field.label" value="HORA_INICIO"/>
+	</field>
+	<field name="HORA_FIN" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="HORA_FIN"/>
+		<property name="com.jaspersoft.studio.field.label" value="HORA_FIN"/>
+	</field>
+	<field name="DIA_FIN" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="DIA_FIN"/>
+		<property name="com.jaspersoft.studio.field.label" value="DIA_FIN"/>
+	</field>
+	<field name="MES_FIN" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="MES_FIN"/>
+		<property name="com.jaspersoft.studio.field.label" value="MES_FIN"/>
+	</field>
+	<field name="ANIO_FIN" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="ANIO_FIN"/>
+		<property name="com.jaspersoft.studio.field.label" value="ANIO_FIN"/>
+	</field>
+	<field name="FUNC_NAME" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="FUNC_NAME"/>
+		<property name="com.jaspersoft.studio.field.label" value="FUNC_NAME"/>
+	</field>
+	<field name="FUNC_CI" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="FUNC_CI"/>
+		<property name="com.jaspersoft.studio.field.label" value="FUNC_CI"/>
+	</field>
+	<field name="PUESTO" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="PUESTO"/>
+		<property name="com.jaspersoft.studio.field.label" value="PUESTO"/>
+	</field>
+	<field name="FUNC_ANT_NAME" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="FUNC_ANT_NAME"/>
+		<property name="com.jaspersoft.studio.field.label" value="FUNC_ANT_NAME"/>
+	</field>
+	<field name="FUNC_POST_NAME" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="FUNC_POST_NAME"/>
+		<property name="com.jaspersoft.studio.field.label" value="FUNC_POST_NAME"/>
+	</field>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="50"/>
+	</title>
+	<pageHeader>
+		<band height="17" splitType="Stretch">
+			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
+				<reportElement x="77" y="0" width="400" height="17" uuid="8de92a14-e3b7-4311-9bf1-e1b4dc37ffd9">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center">
+					<font size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Acta del Puesto: "+$F{PUESTO}]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="167" splitType="Stretch">
+			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
+				<reportElement x="20" y="10" width="500" height="78" isRemoveLineWhenBlank="true" uuid="0fb2b2a7-6b8c-4cf9-b8bd-5c00e11f3ad4">
+					<printWhenExpression><![CDATA[$F{FUNC_ANT_NAME}.equals("no")]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Justified">
+					<font size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA["En la Ciudad de: "+$F{CIUDAD}+", Departamento de: "+ $F{DEP_CIUDAD} + ", República del: " +$F{PAIS}+" a los: "+ $F{DIA_LETRA}+ " días, del mes de: "+$F{MES_LETRA}+", del año: "+$F{ANIO}+" a las: "+$F{HORA_INICIO}+"Hs. Yo, El Vigilante Entrante: "+$F{FUNC_NAME}+", con C.I. Nº: "+$F{FUNC_CI}+", de La Empresa: Vigía S.R.L.; me hago cargo de mi Servicio de Guardia, en el Puesto: "+$F{PUESTO}+", con las siguientes novedades:"]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="StretchHeight">
+				<reportElement x="20" y="89" width="498" height="78" isRemoveLineWhenBlank="true" uuid="aab9f434-b493-462d-8742-1d27024c725b">
+					<printWhenExpression><![CDATA[!$F{FUNC_ANT_NAME}.equals("no")]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Justified">
+					<font size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA["En la Ciudad de: "+$F{CIUDAD}+", Departamento de: "+ $F{DEP_CIUDAD} + ", República del: " +$F{PAIS}+" a los: "+ $F{DIA_LETRA}+ " días, del mes de: "+$F{MES_LETRA}+", del año: "+$F{ANIO}+" a las: "+$F{HORA_INICIO}+"Hs. Yo, El Vigilante Entrante: "+$F{FUNC_NAME}+", con C.I. Nº: "+$F{FUNC_CI}+", de La Empresa: Vigía S.R.L.; me hago cargo de mi Servicio de Guardia, en el Puesto: "+$F{PUESTO}+", recibiendo de mi Contra Turno, El Vigilante Saliente Sr.: "+$F{FUNC_ANT_NAME}+" , de La Empresa: Vigía S.R.L., el cual Permanece en el lugar. Novedades:"]]></textFieldExpression>
+			</textField>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="26" splitType="Stretch">
+			<subreport>
+				<reportElement x="20" y="0" width="498" height="20" uuid="b00cba2d-7635-4c0f-b361-a60160cc4619"/>
+				<subreportParameter name="id_funcionario">
+					<subreportParameterExpression><![CDATA[$P{funcionario}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="id_funcionario_emp">
+					<subreportParameterExpression><![CDATA[$F{ID}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="turno">
+					<subreportParameterExpression><![CDATA[$P{turno}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA["sub_actas.jasper"]]></subreportExpression>
+			</subreport>
+		</band>
+	</detail>
+	<pageFooter>
+		<band height="56">
+			<textField>
+				<reportElement x="418" y="20" width="100" height="10" uuid="3bc49447-4ee1-408f-bbfd-3bfab573cb3a">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Pág. " + $V{PAGE_NUMBER}+" / " + $V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="80" y="20" width="100" height="20" uuid="c77ad227-c0c5-4547-91fc-9d105205bfc7"/>
+				<box>
+					<topPen lineWidth="1.0" lineStyle="Dotted"/>
+				</box>
+				<textElement textAlignment="Center"/>
+				<text><![CDATA[Firma/s]]></text>
+			</staticText>
+		</band>
+	</pageFooter>
+	<summary>
+		<band height="159" splitType="Stretch">
+			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
+				<reportElement x="20" y="3" width="500" height="66" isRemoveLineWhenBlank="true" uuid="42af9ed5-0907-4fdc-b8c9-9c087742cc10">
+					<printWhenExpression><![CDATA[$F{FUNC_POST_NAME}.equals("no")]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Justified">
+					<font size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Yo, El Vigilante Saliente: "+$F{FUNC_NAME}+", con C.I. Nº: "+$F{FUNC_CI}+", de La Empresa: Vigía S.R.L., siendo las: "+$F{HORA_FIN}+" del día: "+$F{DIA_FIN}+", del mes de: Abril, "+$F{MES_FIN}+", del año: "+$F{ANIO_FIN}+"; doy por culminado mi Servicio de Guardia, en el Puesto: "+$F{PUESTO}+" y me retiro del lugar. "]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
+				<reportElement x="20" y="70" width="500" height="78" isRemoveLineWhenBlank="true" uuid="fc5dca9b-5984-4083-bfb2-0b0c45516a24">
+					<printWhenExpression><![CDATA[!$F{FUNC_POST_NAME}.equals("no")]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Justified">
+					<font size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Yo, El Vigilante Saliente: "+$F{FUNC_NAME}+", con C.I. Nº: "+$F{FUNC_CI}+", de La Empresa: Vigía S.R.L., siendo las: "+$F{HORA_FIN}+" del día: "+$F{DIA_FIN}+", del mes de: Abril, "+$F{MES_FIN}+", del año: "+$F{ANIO_FIN}+"; doy por culminado mi Servicio de Guardia, en el Puesto: "+$F{PUESTO}+" Hago entrega de los equipos de guardia y de la custodia del lugar, a mi Contra Turno, El Vigilante Entrante Sr.: "+$F{FUNC_POST_NAME}+" y me retiro  del lugar"]]></textFieldExpression>
+			</textField>
+		</band>
+	</summary>
+</jasperReport>

@@ -1,0 +1,62 @@
+-- Create table
+create table CATEGORIAS_EMPRESA
+(
+  id                NUMBER not null,
+  descripcion       VARCHAR2(50) not null,
+  cant_funcionarios NUMBER not null,
+  rondas            NUMBER not null,
+  color_css         VARCHAR2(255),
+  texto_reporte     VARCHAR2(2000)
+)
+tablespace SYSAUX
+  pctfree 10
+  initrans 1
+  maxtrans 255
+  storage
+  (
+    initial 64K
+    next 1M
+    minextents 1
+    maxextents unlimited
+  );
+-- Add comments to the table 
+comment on table CATEGORIAS_EMPRESA
+  is 'TABLA CATALOGO';
+-- Add comments to the columns 
+comment on column CATEGORIAS_EMPRESA.cant_funcionarios
+  is 'Cantidad de funcionarios en total de hs';
+comment on column CATEGORIAS_EMPRESA.rondas
+  is 'Total de rondas, que no exceda las 24hs, se calcula multiplicando TIEMPO_HS * RONDAS, debe ser menor o igual a 24';
+comment on column CATEGORIAS_EMPRESA.color_css
+  is 'Class calendar apex';
+comment on column CATEGORIAS_EMPRESA.texto_reporte
+  is 'Texto que va en el reporte, ej. CATEGORIA DOBLE dice, Contra Turnos';
+-- Create/Recreate primary, unique and foreign key constraints 
+alter table CATEGORIAS_EMPRESA
+  add constraint CATEGORIAS_EMPRESA_PK primary key (ID)
+  using index 
+  tablespace SYSAUX
+  pctfree 10
+  initrans 2
+  maxtrans 255
+  storage
+  (
+    initial 64K
+    next 1M
+    minextents 1
+    maxextents unlimited
+  );
+alter table CATEGORIAS_EMPRESA
+  add constraint CAT_EMPRESA_DESC_UK unique (DESCRIPCION)
+  using index 
+  tablespace SYSAUX
+  pctfree 10
+  initrans 2
+  maxtrans 255
+  storage
+  (
+    initial 64K
+    next 1M
+    minextents 1
+    maxextents unlimited
+  );

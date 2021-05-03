@@ -1,0 +1,46 @@
+-- Create table
+create table ESTADOS
+(
+  id          NUMBER not null,
+  descripcion VARCHAR2(50) not null
+)
+tablespace SYSAUX
+  pctfree 10
+  initrans 1
+  maxtrans 255
+  storage
+  (
+    initial 64K
+    next 1M
+    minextents 1
+    maxextents unlimited
+  );
+-- Create/Recreate primary, unique and foreign key constraints 
+alter table ESTADOS
+  add constraint ESTADOS_PK primary key (ID)
+  using index 
+  tablespace SYSAUX
+  pctfree 10
+  initrans 2
+  maxtrans 255
+  storage
+  (
+    initial 64K
+    next 1M
+    minextents 1
+    maxextents unlimited
+  );
+alter table ESTADOS
+  add constraint ESTADOS_DESC_UK unique (DESCRIPCION)
+  using index 
+  tablespace SYSAUX
+  pctfree 10
+  initrans 2
+  maxtrans 255
+  storage
+  (
+    initial 64K
+    next 1M
+    minextents 1
+    maxextents unlimited
+  );

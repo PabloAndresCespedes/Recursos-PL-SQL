@@ -9,7 +9,7 @@ begin
    
    if updating or deleting then
      delete from funcionarios_empresa fe
-     where  trunc(fe.fecha_inicio) >= sysdate
+     where  (trunc(fe.fecha_inicio) >= trunc(sysdate) or trunc(fe.fecha_fin) >= trunc(sysdate))
      and    fe.depno = :old.deptno;
    end if;
 end;

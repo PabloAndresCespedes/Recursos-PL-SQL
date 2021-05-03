@@ -1,0 +1,70 @@
+-- Create table
+create table FUNCIONARIO
+(
+  id_funcionario  NUMBER(10) not null,
+  cod_funcionario VARCHAR2(20) not null,
+  cedula_f        NUMBER(10),
+  nombre_f        VARCHAR2(100),
+  apellido_f      VARCHAR2(100),
+  ccp             VARCHAR2(100),
+  cargo           VARCHAR2(200),
+  rango           VARCHAR2(200),
+  tipo            VARCHAR2(20) not null,
+  usuario         VARCHAR2(20) not null,
+  pw              VARCHAR2(100),
+  nro_bloqueo     NUMBER(20),
+  nro_acc_remoto  NUMBER,
+  pass_remoto     VARCHAR2(255),
+  telefono        NUMBER,
+  estado_id       NUMBER
+)
+tablespace SYSAUX
+  pctfree 10
+  initrans 1
+  maxtrans 255
+  storage
+  (
+    initial 64K
+    next 1M
+    minextents 1
+    maxextents unlimited
+  );
+-- Add comments to the columns 
+comment on column FUNCIONARIO.estado_id
+  is 'Tabla ESTADOS, no confundir con ESTADO en singular. Solo usar 0 o 1, inactivo activo. de la tabla catalogo';
+-- Create/Recreate primary, unique and foreign key constraints 
+alter table FUNCIONARIO
+  add primary key (ID_FUNCIONARIO)
+  using index 
+  tablespace SYSAUX
+  pctfree 10
+  initrans 2
+  maxtrans 255
+  storage
+  (
+    initial 64K
+    next 1M
+    minextents 1
+    maxextents unlimited
+  );
+alter table FUNCIONARIO
+  add constraint FUNCIONARIO_USUARIO_UK unique (USUARIO)
+  using index 
+  tablespace SYSAUX
+  pctfree 10
+  initrans 2
+  maxtrans 255
+  storage
+  (
+    initial 64K
+    next 1M
+    minextents 1
+    maxextents unlimited
+  );
+alter table FUNCIONARIO
+  add constraint FUNCIONARIO_ESTADO_FK foreign key (ESTADO_ID)
+  references ESTADOS (ID);
+-- Create/Recreate check constraints 
+alter table FUNCIONARIO
+  add constraint FUNC_ESTADO_CK
+  check (ESTADO_ID IN (0, 1));

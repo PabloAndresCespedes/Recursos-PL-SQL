@@ -1,0 +1,52 @@
+-- Create table
+create table ROLES_FUNCIONARIO
+(
+  id             NUMBER not null,
+  funcionario_id NUMBER not null,
+  roles_ids      VARCHAR2(4000) not null,
+  fecha          DATE default SYSDATE not null,
+  user_web       VARCHAR2(50) not null
+)
+tablespace SYSAUX
+  pctfree 10
+  initrans 1
+  maxtrans 255
+  storage
+  (
+    initial 64K
+    next 1M
+    minextents 1
+    maxextents unlimited
+  );
+-- Create/Recreate primary, unique and foreign key constraints 
+alter table ROLES_FUNCIONARIO
+  add constraint ROLES_FUNCIONARIO_PK primary key (ID)
+  using index 
+  tablespace SYSAUX
+  pctfree 10
+  initrans 2
+  maxtrans 255
+  storage
+  (
+    initial 64K
+    next 1M
+    minextents 1
+    maxextents unlimited
+  );
+alter table ROLES_FUNCIONARIO
+  add constraint ROLES_FUNCIONARIO_USU_UK unique (FUNCIONARIO_ID)
+  using index 
+  tablespace SYSAUX
+  pctfree 10
+  initrans 2
+  maxtrans 255
+  storage
+  (
+    initial 64K
+    next 1M
+    minextents 1
+    maxextents unlimited
+  );
+alter table ROLES_FUNCIONARIO
+  add constraint ROLES_FUNCIONARIO_FUNC_FK foreign key (FUNCIONARIO_ID)
+  references FUNCIONARIO (ID_FUNCIONARIO);

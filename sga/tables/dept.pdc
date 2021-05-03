@@ -1,0 +1,50 @@
+-- Create table
+create table DEPT
+(
+  deptno           NUMBER(8) not null,
+  dname            VARCHAR2(255),
+  loc              VARCHAR2(255),
+  celular          VARCHAR2(30),
+  ruc              VARCHAR2(10),
+  representante    VARCHAR2(150),
+  direccion        VARCHAR2(255),
+  municipio_id     NUMBER,
+  categoria_emp_id NUMBER
+)
+tablespace SYSAUX
+  pctfree 10
+  initrans 1
+  maxtrans 255
+  storage
+  (
+    initial 64K
+    next 1M
+    minextents 1
+    maxextents unlimited
+  );
+-- Add comments to the columns 
+comment on column DEPT.municipio_id
+  is 'Tabla Municipio. De aqui ya se puede ver su REGION y PAIS';
+comment on column DEPT.categoria_emp_id
+  is 'Tabla CATEGORIAS_EMPRESA';
+-- Create/Recreate primary, unique and foreign key constraints 
+alter table DEPT
+  add primary key (DEPTNO)
+  using index 
+  tablespace SYSAUX
+  pctfree 10
+  initrans 2
+  maxtrans 255
+  storage
+  (
+    initial 64K
+    next 1M
+    minextents 1
+    maxextents unlimited
+  );
+alter table DEPT
+  add constraint DEPT_CATEGORIA_EMP_FK foreign key (CATEGORIA_EMP_ID)
+  references CATEGORIAS_EMPRESA (ID);
+alter table DEPT
+  add constraint DEPT_MUNICIPIO_FK foreign key (MUNICIPIO_ID)
+  references MUNICIPIO (ID);

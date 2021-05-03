@@ -9,8 +9,8 @@ begin
   
   if deleting then
     delete from asistencia a
-    where a.id_func_emp = :old.id
-    and   trunc(a.fecha_creado) >= sysdate;
+    where (trunc(a.func_hora_inicio) >= trunc(sysdate) or trunc(a.func_hora_fin) >= trunc(sysdate))
+    and   a.deptno = :old.depno;
   end if;
   
 end func_empresa_antes;

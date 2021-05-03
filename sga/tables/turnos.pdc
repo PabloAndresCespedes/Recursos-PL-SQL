@@ -1,0 +1,67 @@
+-- Create table
+create table TURNOS
+(
+  id          NUMBER not null,
+  descripcion VARCHAR2(50) not null,
+  hora_inicio VARCHAR2(5) not null,
+  total_hs    NUMBER not null
+)
+tablespace SYSAUX
+  pctfree 10
+  initrans 1
+  maxtrans 255
+  storage
+  (
+    initial 64K
+    next 1M
+    minextents 1
+    maxextents unlimited
+  );
+-- Add comments to the columns 
+comment on column TURNOS.descripcion
+  is 'LOS TURNOS NO SE DEBEN MODIFICAR, SOLO ELIMINAR';
+comment on column TURNOS.hora_inicio
+  is 'Formato HH24:MI';
+-- Create/Recreate primary, unique and foreign key constraints 
+alter table TURNOS
+  add constraint TURNOS_PK primary key (ID)
+  using index 
+  tablespace SYSAUX
+  pctfree 10
+  initrans 2
+  maxtrans 255
+  storage
+  (
+    initial 64K
+    next 1M
+    minextents 1
+    maxextents unlimited
+  );
+alter table TURNOS
+  add constraint TURNOS_DESC_UK unique (DESCRIPCION)
+  using index 
+  tablespace SYSAUX
+  pctfree 10
+  initrans 2
+  maxtrans 255
+  storage
+  (
+    initial 64K
+    next 1M
+    minextents 1
+    maxextents unlimited
+  );
+alter table TURNOS
+  add constraint TURNOS_HORA_UK unique (HORA_INICIO, TOTAL_HS)
+  using index 
+  tablespace SYSAUX
+  pctfree 10
+  initrans 2
+  maxtrans 255
+  storage
+  (
+    initial 64K
+    next 1M
+    minextents 1
+    maxextents unlimited
+  );

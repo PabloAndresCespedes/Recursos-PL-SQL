@@ -1,0 +1,48 @@
+-- Create table
+create table FUNCIONARIOS_EMPRESA
+(
+  id              NUMBER not null,
+  funcionario_ids VARCHAR2(4000) not null,
+  depno           NUMBER not null,
+  fecha_inicio    TIMESTAMP(6) not null,
+  fecha_fin       TIMESTAMP(6) not null,
+  user_web        VARCHAR2(50) not null,
+  categoria_id    NUMBER not null,
+  turno_id        NUMBER not null,
+  fecha_registro  DATE not null
+)
+tablespace SYSAUX
+  pctfree 10
+  initrans 1
+  maxtrans 255
+  storage
+  (
+    initial 64K
+    next 1M
+    minextents 1
+    maxextents unlimited
+  );
+-- Create/Recreate primary, unique and foreign key constraints 
+alter table FUNCIONARIOS_EMPRESA
+  add constraint FUNCIONARIOS_EMPRESA_PK primary key (ID)
+  using index 
+  tablespace SYSAUX
+  pctfree 10
+  initrans 2
+  maxtrans 255
+  storage
+  (
+    initial 64K
+    next 1M
+    minextents 1
+    maxextents unlimited
+  );
+alter table FUNCIONARIOS_EMPRESA
+  add constraint FUNC_EMP_CATEGORIA_FK foreign key (CATEGORIA_ID)
+  references CATEGORIAS_EMPRESA (ID);
+alter table FUNCIONARIOS_EMPRESA
+  add constraint FUNC_EMP_TURNO_FK foreign key (TURNO_ID)
+  references TURNOS (ID);
+alter table FUNCIONARIOS_EMPRESA
+  add constraint FUNCIONARIOS_EMPRESA_DEPT_FK foreign key (DEPNO)
+  references DEPT (DEPTNO);

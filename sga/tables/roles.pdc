@@ -1,0 +1,49 @@
+-- Create table
+create table ROLES
+(
+  id           NUMBER not null,
+  descripcion  VARCHAR2(255) not null,
+  permisos_ids VARCHAR2(4000) not null,
+  user_web     VARCHAR2(50) not null,
+  fecha        DATE default SYSDATE not null
+)
+tablespace SYSAUX
+  pctfree 10
+  initrans 1
+  maxtrans 255
+  storage
+  (
+    initial 64K
+    next 1M
+    minextents 1
+    maxextents unlimited
+  );
+-- Create/Recreate primary, unique and foreign key constraints 
+alter table ROLES
+  add constraint ROLES_PK primary key (ID)
+  using index 
+  tablespace SYSAUX
+  pctfree 10
+  initrans 2
+  maxtrans 255
+  storage
+  (
+    initial 64K
+    next 1M
+    minextents 1
+    maxextents unlimited
+  );
+alter table ROLES
+  add constraint ROLES_DESC_UK unique (DESCRIPCION)
+  using index 
+  tablespace SYSAUX
+  pctfree 10
+  initrans 2
+  maxtrans 255
+  storage
+  (
+    initial 64K
+    next 1M
+    minextents 1
+    maxextents unlimited
+  );

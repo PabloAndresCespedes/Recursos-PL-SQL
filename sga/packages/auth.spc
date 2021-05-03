@@ -17,6 +17,11 @@ create or replace package auth is
     p_permission_id permisos.id%type
   )return boolean;
 
-
+-- 2 retorna 1 o 0 true o false
+  function has_permission_user_number(
+    p_user          funcionario.usuario%type,
+    p_permission_id permisos.id%type
+  )return number;
+  
 end auth;
 /

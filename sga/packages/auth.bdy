@@ -17,7 +17,7 @@ create or replace package body auth is
       inner join roles_funcionario ru on (ru.funcionario_id = u.id_funcionario)
       where u.usuario = trim(upper(p_user));
 
-      select r.permisos_ids into l_permisos
+      select listagg(r.permisos_ids, ':') within group (order by 1) into l_permisos
       from roles r
       inner join table (apex_string.split_numbers(l_roles, ':')) rs on (rs.column_value = r.id);
 
@@ -33,5 +33,18 @@ create or replace package body auth is
       return false;
   end has_permission_user;
 
+--2
+function has_permission_user_number(
+    p_user          funcionario.usuario%type,
+    p_permission_id permisos.id%type
+  )return number
+  is 
+begin  
+    if has_permission_user(p_user => p_user, p_permission_id => p_permission_id) then
+      return 1;
+    else 
+      return 0;
+    end if;
+end has_permission_user_number;
 end auth;
 /

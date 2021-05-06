@@ -1,0 +1,30 @@
+Reglas de negocio:
+Categoria para empresas:
+  * SOLO: 1 funcionario por 12hs
+  * CUSTODIA SIMPLE: 1 funcionario cada 12hs por 24hs
+  * CUSTODIA DOBLE: 2 funcionarios cada 12hs por 24hs
+  
+Cada funcionario que se asigne debe cumplir con el rango de horas
+según la categoría, es decir, no tener menos horas según categoria.
+Si un funcionario tiene un horario de 8hs diarias no puede ser 
+asignado a una categoria de empresa que sea de 12hs.
+
+Calendarización de turnos
+  Asigna a los personales según la categoría de la empresa.
+  Si la empresa tiene una categoría:
+  * SOLO: se asigna 1 personal con horario de 12hs.
+    Ejemplo: 25/01/2021 PRONTO JUAN 06:00 A 18:00hs
+             26/01/2021 PRONTO JUAN 06:00 A 18:00hs
+             
+  * CUSTODIA SIMPLE, debe asignarse 2 funcionarios, 
+    controlando que sus horarios sean diferentes y correlativos, completando
+    así 24hs.
+    Ejemplo: 25/01/2021 PRONTO JUAN 06:00 A 18:00hs
+             25/01/2021 PRONTO JUAN 18:00 A 06:00hs del 26/01/2021
+             
+  * CUSTODIA DOBLE: se asigna 4 funcionarios. 2 horarios de 12hs en 
+    dos turnos. Completando 24hs.
+    Ejemplo: 25/01/2021 PRONTO JUAN 06:00 A 18:00hs
+             25/01/2021 PRONTO PEPE 06:00 A 18:00hs
+             25/01/2021 PRONTO JUAN 18:00 A 06:00hs del 26/01/2021
+             25/01/2021 PRONTO PEPE 18:00 A 06:00hs del 26/01/2021

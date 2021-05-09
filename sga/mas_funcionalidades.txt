@@ -1,0 +1,4 @@
+* Control de cobros por categoría de Empresa, fecha de vencimiento, pagos.
+* Reporte de pendientes a cobrar.
+* Cobradores.
+* Lista general de últimas conexiones de funcionarios.

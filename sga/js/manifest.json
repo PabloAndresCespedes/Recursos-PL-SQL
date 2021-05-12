@@ -1,0 +1,12 @@
+{
+  "name": "Bienvenido...",
+  "short_name": "Monitoreo & Control de Rondas",
+  "start_url": "http://192.168.20.14:1922/ords/f?p=109:1",
+  "descripcion": "Monitoreo & Control de Rondas",
+  "background_color": "#FFF",
+  "theme_color": "#508223",
+  "orientation": "portrait",
+  "display": "standalone",
+  "dir": "ltr",
+  "lang": "es-ES"
+}

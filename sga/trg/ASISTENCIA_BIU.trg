@@ -9,13 +9,13 @@ begin
     if inserting and :new.id_asistencia is null then
         :new.id_asistencia := asistencia_SEQ.nextval;
     end if;
-     
-    select id_funcionario
-      into v_funcionario
-    from funcionario
-    where upper(usuario)= nvl(sys_context('APEX$SESSION','APP_USER'),user); 
    
     if inserting then
+        select id_funcionario
+          into v_funcionario
+        from funcionario
+        where upper(usuario)= nvl(sys_context('APEX$SESSION','APP_USER'),user); 
+        
         :new.hora_inicio    := to_char(systimestamp,'HH24:MI');
 		    :new.fecha_creado   := systimestamp;
         :new.creado_por     := nvl(sys_context('APEX$SESSION','APP_USER'),user);
@@ -44,7 +44,10 @@ begin
         end;
         
     elsif updating then
-        :new.hora_fin         := to_char(systimestamp,'HH24:MI');
+        if :new.hora_fin is null then
+           :new.hora_fin := to_char(systimestamp,'HH24:MI');
+           :new.tipo := 'S';
+        end if;
         :new.fecha_modificado := systimestamp;
         :new.modificado_por   := nvl(sys_context('APEX$SESSION','APP_USER'),user);
         :new.usuario          := nvl(sys_context('APEX$SESSION','APP_USER'),user);

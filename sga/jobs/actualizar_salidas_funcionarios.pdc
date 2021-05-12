@@ -1,0 +1,8 @@
+begin
+  sys.dbms_job.submit(job => :job,
+                      what => 'JOB_UPD_ASISTENCIA_SALIDA;',
+                      next_date => to_date('11-05-2021 22:29:41', 'dd-mm-yyyy hh24:mi:ss'),
+                      interval => 'SYSDATE + (1/24)');
+  commit;
+end;
+/

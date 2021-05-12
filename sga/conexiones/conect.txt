@@ -1,1 +1,9 @@
 anydesk 790908514 secreto2021 Root oracle
+
+publica: 168.195.226.158:8443
+internal:ADMIN
+pass:Sga2020#
+
+W: DEVELOPER
+U: PABLOCESPEDES
+PS: Pablo2020#

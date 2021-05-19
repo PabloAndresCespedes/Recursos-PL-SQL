@@ -1,0 +1,27 @@
+  -- Author  : @PabloACespedes
+  -- Created : $DATE $TIME
+  -- TRG DE AUDITORIA
+declare
+  v_operacion varchar2(3);
+  lv_user     varchar2(200) := nvl(sys_context('APEX$SESSION','APP_USER'),user);
+begin
+  if inserting or updating then
+    case when inserting then
+       v_operacion := 'INS';
+    else
+       v_operacion := 'UPD';
+    end case;
+
+    insert into
+
+   elsif deleting then
+      v_operacion := 'DEL';
+
+   end if;
+
+    INSERT INTO [#]
+
+   ELSIF DELETING THEN
+      V_OPERACION := 'DEL';
+
+    END IF;

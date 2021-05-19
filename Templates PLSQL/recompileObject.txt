@@ -1,0 +1,4 @@
+SELECT 'alter ' || object_type || ' ' || object_name || ' compile;' X
+FROM user_objects
+WHERE STATUS <> 'VALID'
+AND object_type IN ('VIEW','SYNONYM','PROCEDURE','FUNCTION','PACKAGE','TRIGGER');

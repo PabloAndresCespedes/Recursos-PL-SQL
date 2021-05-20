@@ -1,0 +1,1 @@
+nvl(sys_context('APEX$SESSION','APP_USER'),user);

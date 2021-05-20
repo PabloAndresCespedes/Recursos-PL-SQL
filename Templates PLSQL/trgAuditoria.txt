@@ -12,16 +12,9 @@ begin
        v_operacion := 'UPD';
     end case;
 
-    insert into
+    insert into [#]
 
    elsif deleting then
       v_operacion := 'DEL';
 
    end if;
-
-    INSERT INTO [#]
-
-   ELSIF DELETING THEN
-      V_OPERACION := 'DEL';
-
-    END IF;

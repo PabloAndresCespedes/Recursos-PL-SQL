@@ -1,0 +1,1 @@
+lv_user varchar2(200) := nvl(sys_context('APEX$SESSION','APP_USER'),user);

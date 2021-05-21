@@ -1,0 +1,3 @@
+<center>
+  <h4 class="u-danger-text">Esta aplicación será actualizada en 5 minutos, guarde sus datos.</h4>
+</center>

@@ -1,0 +1,1 @@
+raise_application_Error(-20000, '');

@@ -1,0 +1,2 @@
+when others then
+      raise_application_Error(-20000, sqlerrm);

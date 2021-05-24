@@ -1,0 +1,6 @@
+begin
+
+      exception
+        when no_data_found then
+           raise_application_error(-20000, '');
+      end;

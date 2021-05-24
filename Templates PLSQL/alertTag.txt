@@ -1,3 +1,1 @@
-<center>
-  <h4 class="u-danger-text">Esta aplicación será actualizada en 5 minutos, guarde sus datos.</h4>
-</center>
+<div class="col-4 col-12 apex-col-auto padding-md"><div class="t-Alert t-Alert--colorBG t-Alert--horizontal t-Alert--defaultIcons t-Alert--warning  a-Tabs-panel apex-rds-after apex-rds-element-selected" id="alertGeneral" role="tabpanel" aria-labelledby="alertGeneral_tab" aria-hidden="false" style=""><div class="t-Alert-wrap"><div class="t-Alert-icon"><span class="t-Icon "></span></div><div class="t-Alert-content"><div class="t-Alert-header"><h2 class="t-Alert-title" id="alertGeneral_heading">Aviso Importante</h2></div><div class="t-Alert-body">Esta aplicación será actualizada en 5 minutos, guarde sus datos.</div></div><div class="t-Alert-buttons"></div></div></div></div>

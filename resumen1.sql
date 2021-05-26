@@ -1,0 +1,79 @@
+/*** PRESTACION DE SERVICIOS **/
+select nvl(sum(f.monto_exento + f.monto_gravado+ f.monto_iva - f.monto_descuento), 0) factura_cuota
+from factura_prepaga f
+where f.cpt_faid_concepto_fact_prepaga = 1
+and   f.estado = 'ACTIVO'
+and  (trunc(f.fecha_grabacion) between to_date(&fecha_desde, 'dd/mm/yyyy') and to_date(&fecha_hasta, 'dd/mm/yyyy'));
+
+select nvl(sum(f.monto_exento + f.monto_gravado+ f.monto_iva - f.monto_descuento), 0) cuota_inclusion
+from factura_prepaga f
+where f.cpt_faid_concepto_fact_prepaga = 2
+and   f.estado = 'ACTIVO'
+and  (trunc(f.fecha_grabacion) between to_date(&fecha_desde, 'dd/mm/yyyy') and to_date(&fecha_hasta, 'dd/mm/yyyy'));
+
+select sum(f.monto_exento + f.monto_gravado+ f.monto_iva - f.monto_descuento) copago
+from factura_prepaga f
+where f.cpt_faid_concepto_fact_prepaga = 3
+and   f.estado = 'ACTIVO'
+and  (trunc(f.fecha_grabacion) between to_date(&fecha_desde, 'dd/mm/yyyy') and to_date(&fecha_hasta, 'dd/mm/yyyy'));
+
+select nvl(sum(f.monto_exento + f.monto_gravado+ f.monto_iva - f.monto_descuento), 0) cuotas_anteriores
+from factura_prepaga f
+where f.cpt_faid_concepto_fact_prepaga = 11
+and   f.estado = 'ACTIVO'
+and  (trunc(f.fecha_grabacion) between to_date(&fecha_desde, 'dd/mm/yyyy') and to_date(&fecha_hasta, 'dd/mm/yyyy'));
+
+select nvl(sum(f.monto_exento + f.monto_gravado+ f.monto_iva - f.monto_descuento), 0) diferencia_cuotas
+from factura_prepaga f
+where f.cpt_faid_concepto_fact_prepaga = 12
+and   f.estado = 'ACTIVO'
+and  (trunc(f.fecha_grabacion) between to_date(&fecha_desde, 'dd/mm/yyyy') and to_date(&fecha_hasta, 'dd/mm/yyyy'));
+
+/******** DEDUCCIONES DE VENTAS ********/
+select sum(n.monto_exento + n.monto_gravado + n.monto_iva) notas_credito
+from nota_cr_fact_prepaga n
+where n.estado_nota = 'ACTIVO'
+and  (trunc(n.fecha_nota) between to_date(&fecha_desde, 'dd/mm/yyyy') and to_date(&fecha_hasta, 'dd/mm/yyyy'));
+
+/**COSTO DE VENTAS**/
+select nvl(sum(s.monto_prepaga) ,0) coberturas_ambulatorias
+from srv_prepaga s
+where (trunc(s.fecha_inicio_srv) between to_date(&fecha_desde,'dd/mm/yyyy') and to_date(&fecha_hasta,'dd/mm/yyyy'))
+and   s.estado_srv = 'ACTIVO'
+and   s.id_internado is null;
+
+select nvl(sum(s.monto_prepaga) ,0) coberturas_internaciones
+from srv_prepaga s
+where (trunc(s.fecha_inicio_srv) between to_date(&fecha_desde,'dd/mm/yyyy') and to_date(&fecha_hasta,'dd/mm/yyyy'))
+and   s.estado_srv = 'ACTIVO'
+and   s.id_internado is not null;
+
+select sum(t) saa_reintegros 
+from(
+  select nvl(sum(f.monto_gravado + f.monto_exento + f.monto_iva - f.desc_monto_exento - f.desc_monto_gravado), 0) t
+  from fact_prov f
+  where f.prov_id_proveedor = 716
+  and   (trunc(f.fecha_factura) between to_date(&fecha_desde,'dd/mm/yyyy') and to_date(&fecha_hasta,'dd/mm/yyyy'))
+  union all
+  select nvl(sum(t.monto), 0) t
+  from trans t 
+  inner join concepto_plan_prepaga cc on (cc.concepto_id = t.concepto_id_concepto_orig)
+  where t.estado_trans = 'ACTIVO'
+  and   (trunc(t.fecha_transaccion) between to_date(&fecha_desde,'dd/mm/yyyy') and to_date(&fecha_hasta,'dd/mm/yyyy'))
+);
+/**OTROS INGRESOS OPERATIVOS**/
+select nvl(sum(f.monto_exento + f.monto_gravado+ f.monto_iva - f.monto_descuento), 0) servicio_cobranza
+from factura_prepaga f
+where f.cpt_faid_concepto_fact_prepaga = 18
+and   f.estado = 'ACTIVO'
+and  (trunc(f.fecha_grabacion) between to_date(&fecha_desde, 'dd/mm/yyyy') and to_date(&fecha_hasta, 'dd/mm/yyyy'));
+
+/** ADMINISTRATIVAS Y GENERALES **/
+select nvl(sum(a.precio_ponderado), 0) salida_deposito
+from solicitud_articulo x
+inner join det_sol_art y on (x.id_solicitud_art = y.sol_art_id_solicitud_art)
+inner join personal_sanatorio p on (p.id_personal = x.per_san_id_personal)
+inner join articulo a on (a.id_articulo = y.art_id_articulo)
+where y.estado='CONCRETADO' 
+and (trunc(x.fecha) between to_date(&fecha_desde,'dd/mm/yyyy') and to_date(&fecha_hasta,'dd/mm/yyyy'))
+and x.d_suc_dep_id_departamento = 58;

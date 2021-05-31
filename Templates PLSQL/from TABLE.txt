@@ -1,0 +1,1 @@
+(select column_value from table(apex_string.split_numbers(p_str => [#], p_sep => ':')))

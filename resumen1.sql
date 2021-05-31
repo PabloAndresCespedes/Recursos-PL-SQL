@@ -33,7 +33,7 @@ and   fp.cpt_faid_concepto_fact_prepaga = 3
 and   p.id_plan <= 500 and p.id_plan != 5
 and  (trunc(fp.fecha_grabacion) between to_date(&fecha_desde, 'dd/mm/yyyy') and to_date(&fecha_hasta, 'dd/mm/yyyy'));
 
-select nvl(sum((dfp.monto_exento  + dfp.monto_gravado  + dfp.monto_iva  - dfp.monto_descuento) * fp.venta), 0) cuotas_anteriore s 
+select nvl(sum((dfp.monto_exento  + dfp.monto_gravado  + dfp.monto_iva  - dfp.monto_descuento) * fp.venta), 0) cuotas_anteriores
 from det_fact_prepaga dfp
 inner join factura_prepaga fp on (fp.id_factura_prepaga = dfp.fact_prep_id_factura_prepaga)
 inner join cliente c on (dfp.cliente_id_cliente = c.id_cliente and dfp.cliente_id_secuencia = c.id_secuencia)
@@ -76,23 +76,37 @@ and   s.id_internado is not null;
 
 select sum(t) saa_reintegros 
 from(
+  select sum(t) t from(
   select nvl(sum(f.monto_gravado + f.monto_exento + f.monto_iva - f.desc_monto_exento - f.desc_monto_gravado), 0) t
-  from fact_prov f
-  where f.prov_id_proveedor = 716
-  and   (trunc(f.fecha_factura) between to_date(&fecha_desde,'dd/mm/yyyy') and to_date(&fecha_hasta,'dd/mm/yyyy'))
+    from fact_prov f
+    inner join det_factura_prov d on (d.fact_id_factura = f.id_factura)
+    inner join articulo a on (a.id_articulo = d.art_id_articulo)
+    where f.prov_id_proveedor = 716 -- 
+    and   f.estado = 'ACTIVO'
+    and   (trunc(f.fecha_factura) between to_date(&fecha_desde,'dd/mm/yyyy') and to_date(&fecha_hasta,'dd/mm/yyyy'))
+    and   a.sub_grupo_grupo_id_grupo = 18  -- GASTOS GENERALES - OPERATIVOS
+    and   a.sub_grupo_grupo_linea_id_linea = 8 -- GASTOS DE CONVENIOS
+  group by f.id_factura)
   union all
   select nvl(sum(t.monto), 0) t
-  from trans t 
-  inner join concepto_plan_prepaga cc on (cc.concepto_id = t.concepto_id_concepto_orig)
-  where t.estado_trans = 'ACTIVO'
+  from trans t
+  where t.concepto_id_concepto_orig in (select distinct c.concepto_id from concepto_plan_prepaga c)
+  and   t.estado_trans = 'ACTIVO'
   and   (trunc(t.fecha_transaccion) between to_date(&fecha_desde,'dd/mm/yyyy') and to_date(&fecha_hasta,'dd/mm/yyyy'))
 );
+
 /**OTROS INGRESOS OPERATIVOS**/
-select nvl(sum(f.monto_exento + f.monto_gravado+ f.monto_iva - f.monto_descuento), 0) servicio_cobranza
-from factura_prepaga f
-where f.cpt_faid_concepto_fact_prepaga = 18
-and   f.estado = 'ACTIVO'
-and  (trunc(f.fecha_grabacion) between to_date(&fecha_desde, 'dd/mm/yyyy') and to_date(&fecha_hasta, 'dd/mm/yyyy'));
+select nvl(sum((dfp.monto_exento  + dfp.monto_gravado  + dfp.monto_iva  - dfp.monto_descuento) * fp.venta), 0) servicio_cobranzas 
+from det_fact_prepaga dfp
+inner join factura_prepaga fp on (fp.id_factura_prepaga = dfp.fact_prep_id_factura_prepaga)
+inner join cliente c on (dfp.cliente_id_cliente = c.id_cliente and dfp.cliente_id_secuencia = c.id_secuencia)
+inner join tarifa  t on (c.tarifa_id_tarifa = t.id_tarifa)
+inner join plan p on (t.plan_id_plan = p.id_plan)
+where fp.estado = 'ACTIVO'
+and   fp.cpt_faid_concepto_fact_prepaga = 18
+and   dfp.comision = 'SI'
+and   p.id_plan <= 500 and p.id_plan != 5
+and  (trunc(fp.fecha_grabacion) between to_date(&fecha_desde, 'dd/mm/yyyy') and to_date(&fecha_hasta, 'dd/mm/yyyy'));
 
 /** ADMINISTRATIVAS Y GENERALES **/
 select nvl(sum(a.precio_ponderado), 0) salida_deposito

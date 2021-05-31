@@ -103,17 +103,75 @@ inner join cliente c on (dfp.cliente_id_cliente = c.id_cliente and dfp.cliente_i
 inner join tarifa  t on (c.tarifa_id_tarifa = t.id_tarifa)
 inner join plan p on (t.plan_id_plan = p.id_plan)
 where fp.estado = 'ACTIVO'
-and   fp.cpt_faid_concepto_fact_prepaga = 18
 and   dfp.comision = 'SI'
+and  (trunc(fp.fecha_grabacion) between to_date(&fecha_desde, 'dd/mm/yyyy') and to_date(&fecha_hasta, 'dd/mm/yyyy'));
+
+select nvl(sum((dfp.monto_exento  + dfp.monto_gravado  + dfp.monto_iva  - dfp.monto_descuento) * fp.venta), 0) recargo_mora
+from det_fact_prepaga dfp
+inner join factura_prepaga fp on (fp.id_factura_prepaga = dfp.fact_prep_id_factura_prepaga)
+inner join cliente c on (dfp.cliente_id_cliente = c.id_cliente and dfp.cliente_id_secuencia = c.id_secuencia)
+inner join tarifa  t on (c.tarifa_id_tarifa = t.id_tarifa)
+inner join plan p on (t.plan_id_plan = p.id_plan)
+where fp.estado = 'ACTIVO'
+and   dfp.comision = 'MO'
+and  (trunc(fp.fecha_grabacion) between to_date(&fecha_desde, 'dd/mm/yyyy') and to_date(&fecha_hasta, 'dd/mm/yyyy'));
+
+select nvl(sum((dfp.monto_exento  + dfp.monto_gravado  + dfp.monto_iva  - dfp.monto_descuento) * fp.venta), 0) reimpresion_carnet
+from det_fact_prepaga dfp
+inner join factura_prepaga fp on (fp.id_factura_prepaga = dfp.fact_prep_id_factura_prepaga)
+inner join cliente c on (dfp.cliente_id_cliente = c.id_cliente and dfp.cliente_id_secuencia = c.id_secuencia)
+inner join tarifa  t on (c.tarifa_id_tarifa = t.id_tarifa)
+inner join plan p on (t.plan_id_plan = p.id_plan)
+where fp.estado = 'ACTIVO'
+and   fp.cpt_faid_concepto_fact_prepaga in(24, 13)
+and   p.id_plan <= 500 and p.id_plan != 5
+and  (trunc(fp.fecha_grabacion) between to_date(&fecha_desde, 'dd/mm/yyyy') and to_date(&fecha_hasta, 'dd/mm/yyyy'));
+
+select nvl(sum((dfp.monto_exento  + dfp.monto_gravado  + dfp.monto_iva  - dfp.monto_descuento) * fp.venta), 0) asistencia_viajero
+from det_fact_prepaga dfp
+inner join factura_prepaga fp on (fp.id_factura_prepaga = dfp.fact_prep_id_factura_prepaga)
+inner join cliente c on (dfp.cliente_id_cliente = c.id_cliente and dfp.cliente_id_secuencia = c.id_secuencia)
+inner join tarifa  t on (c.tarifa_id_tarifa = t.id_tarifa)
+inner join plan p on (t.plan_id_plan = p.id_plan)
+where fp.estado = 'ACTIVO'
+and   fp.cpt_faid_concepto_fact_prepaga in(26, 27)
 and   p.id_plan <= 500 and p.id_plan != 5
 and  (trunc(fp.fecha_grabacion) between to_date(&fecha_desde, 'dd/mm/yyyy') and to_date(&fecha_hasta, 'dd/mm/yyyy'));
 
 /** ADMINISTRATIVAS Y GENERALES **/
-select nvl(sum(a.precio_ponderado), 0) salida_deposito
+select nvl(sum(ce.monto_total * (ce.porc / 100 )), 0) comisiones_servicio_cobranza
+from comisiones_efectivas ce
+inner join factura_prepaga f on (ce.id_factura_prep = f.id_factura_prepaga)
+inner join pago_fact_prepaga pf on (ce.id_pago_fact_prep = pf.id_pago_fact_prepaga)
+inner join trans t on (pf.trans_id_transaccion = t.id_transaccion)
+inner join cliente c on (f.cliente_id_cliente = c.id_cliente and f.cliente_id_secuencia = c.id_secuencia)
+where pf.estado = 'ACTIVO'
+and f.estado = 'ACTIVO'
+and t.estado_trans = 'ACTIVO'
+AND ce.id_prom_cobr is not null
+and (trunc(pf.fecha_pago) between to_date( &fecha_desde ,'DD/MM/YYYY HH24:MI') and to_date( &fecha_hasta ,'DD/MM/YYYY HH24:MI'));
+
+select nvl(sum(round(t.monto,0)), 0) comisiones_pronet
+from trans t 
+where t.disp_id_disponib_dest = 62 -- PRONET
+and   t.estado_trans = 'ACTIVO'
+and (trunc(t.fecha_transaccion) between to_date( &fecha_desde ,'DD/MM/YYYY HH24:MI') and to_date( &fecha_hasta ,'DD/MM/YYYY HH24:MI'))
+
+select nvl(sum(a.precio_ponderado * y.cantidad_entregado), 0) salida_deposito
 from solicitud_articulo x
 inner join det_sol_art y on (x.id_solicitud_art = y.sol_art_id_solicitud_art)
 inner join personal_sanatorio p on (p.id_personal = x.per_san_id_personal)
 inner join articulo a on (a.id_articulo = y.art_id_articulo)
-where y.estado='CONCRETADO' 
+where y.estado = 'CONCRETADO' 
 and (trunc(x.fecha) between to_date(&fecha_desde,'dd/mm/yyyy') and to_date(&fecha_hasta,'dd/mm/yyyy'))
-and x.d_suc_dep_id_departamento = 58;
+and x.d_suc_dep_id_departamento = 58; -- SAMAP
+
+select nvl(sum((dfp.monto_exento  + dfp.monto_gravado  + dfp.monto_iva  - dfp.monto_descuento) * fp.venta), 0) descuento_redondeo
+from det_fact_prepaga dfp
+inner join factura_prepaga fp on (fp.id_factura_prepaga = dfp.fact_prep_id_factura_prepaga)
+inner join cliente c on (dfp.cliente_id_cliente = c.id_cliente and dfp.cliente_id_secuencia = c.id_secuencia)
+inner join tarifa  t on (c.tarifa_id_tarifa = t.id_tarifa)
+inner join plan p on (t.plan_id_plan = p.id_plan)
+where fp.estado = 'ACTIVO'
+and   dfp.comision = 'DE'
+and  (trunc(fp.fecha_grabacion) between to_date(&fecha_desde, 'dd/mm/yyyy') and to_date(&fecha_hasta, 'dd/mm/yyyy'));

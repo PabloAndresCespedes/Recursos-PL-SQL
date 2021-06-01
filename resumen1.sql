@@ -81,7 +81,7 @@ from(
     from fact_prov f
     inner join det_factura_prov d on (d.fact_id_factura = f.id_factura)
     inner join articulo a on (a.id_articulo = d.art_id_articulo)
-    where f.prov_id_proveedor = 716 -- 
+    where f.prov_id_proveedor = 716 -- APASD
     and   f.estado = 'ACTIVO'
     and   (trunc(f.fecha_factura) between to_date(&fecha_desde,'dd/mm/yyyy') and to_date(&fecha_hasta,'dd/mm/yyyy'))
     and   a.sub_grupo_grupo_id_grupo = 18  -- GASTOS GENERALES - OPERATIVOS
@@ -138,24 +138,33 @@ and   fp.cpt_faid_concepto_fact_prepaga in(26, 27)
 and   p.id_plan <= 500 and p.id_plan != 5
 and  (trunc(fp.fecha_grabacion) between to_date(&fecha_desde, 'dd/mm/yyyy') and to_date(&fecha_hasta, 'dd/mm/yyyy'));
 
+/** SALIDAS **/
+/** GASTOS CON PERSONAL **/
+select nvl(sum(round(d.monto)), 0) gastos_personal
+from det_liquid_rh d
+inner join liquidacion_rh l on (l.id_liquidacion = d.id_liquidacion)
+inner join personal_rh p on (p.id_personal_rh = l.personal_r_id_personal_rh)
+left join concepto_deb_cre c on (c.id_concepto_deb_cre = d.id_concepto_deb_cre)
+where l.estado = 'ACTIVO'
+and  (trunc(l.fecha) between to_date(&fecha_desde, 'dd/mm/yyyy') and to_date(&fecha_hasta, 'dd/mm/yyyy'))
+and  p.dep_id_departamento = 58 -- SAMAP
+and  c.tipo_concepto = 'DEB'
+and  p.dep_id_seccion = 1;
+
 /** ADMINISTRATIVAS Y GENERALES **/
-select nvl(sum(ce.monto_total * (ce.porc / 100 )), 0) comisiones_servicio_cobranza
-from comisiones_efectivas ce
-inner join factura_prepaga f on (ce.id_factura_prep = f.id_factura_prepaga)
-inner join pago_fact_prepaga pf on (ce.id_pago_fact_prep = pf.id_pago_fact_prepaga)
-inner join trans t on (pf.trans_id_transaccion = t.id_transaccion)
-inner join cliente c on (f.cliente_id_cliente = c.id_cliente and f.cliente_id_secuencia = c.id_secuencia)
-where pf.estado = 'ACTIVO'
-and f.estado = 'ACTIVO'
-and t.estado_trans = 'ACTIVO'
-AND ce.id_prom_cobr is not null
-and (trunc(pf.fecha_pago) between to_date( &fecha_desde ,'DD/MM/YYYY HH24:MI') and to_date( &fecha_hasta ,'DD/MM/YYYY HH24:MI'));
+select nvl(sum(d.monto_gravado + d.monto_exento + d.monto_iva), 0) t
+from fact_prov f
+inner join det_factura_prov d on (d.fact_id_factura = f.id_factura)
+inner join articulo a on (a.id_articulo = d.art_id_articulo)
+and   f.estado = 'ACTIVO'
+and   (trunc(f.fecha_factura) between to_date(&fecha_desde,'dd/mm/yyyy') and to_date(&fecha_hasta,'dd/mm/yyyy'))
+and   a.sub_grupo_grupo_linea_id_linea = 20; -- COMISIONES POR COBRANZAS
 
 select nvl(sum(round(t.monto,0)), 0) comisiones_pronet
 from trans t 
 where t.disp_id_disponib_dest = 62 -- PRONET
 and   t.estado_trans = 'ACTIVO'
-and (trunc(t.fecha_transaccion) between to_date( &fecha_desde ,'DD/MM/YYYY HH24:MI') and to_date( &fecha_hasta ,'DD/MM/YYYY HH24:MI'))
+and (trunc(t.fecha_transaccion) between to_date( &fecha_desde ,'DD/MM/YYYY HH24:MI') and to_date( &fecha_hasta ,'DD/MM/YYYY HH24:MI'));
 
 select nvl(sum(a.precio_ponderado * y.cantidad_entregado), 0) salida_deposito
 from solicitud_articulo x

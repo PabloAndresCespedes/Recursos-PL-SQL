@@ -9,3 +9,6 @@ begin
   if inserting and :new.id is null then
     :new.id := [#].nextval;
   end if;
+
+  :new.user_web := lv_user;
+  :new.fecha    := sysdate;

@@ -1,1 +1,1 @@
-FETCH FIRST 20 PERCENT ROWS ONLY
+fetch first 20 percent rows only;
